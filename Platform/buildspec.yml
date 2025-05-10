@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - terraform --version
+      - cd deployment
+      - terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=terraform/serverless/state.tfstate" -backend-config="region=ap-south-1" -backend-config="dynamodb_table=${TF_LOCK_TABLE}"
+  build:
+    commands:
+      - terraform validate
+      - terraform plan -out=tfplan
+      - terraform apply -auto-approve tfplan
+env:
+  variables:
+    TF_STATE_BUCKET: "cwepl-terraform-state-bucket"
+    TF_LOCK_TABLE: "cwepl-terraform-lock-table"
